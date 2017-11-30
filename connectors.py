@@ -21,8 +21,14 @@ class DB():
         db_name = db.get('db_name')
         #if use MySQL
         if db.get('type').lower() == 'mysql':
-            import MySQLdb
-            connection = MySQLdb.connect(host, username, password, db_name, charset='utf8')
+            try:
+                import MySQLdb
+                connection = MySQLdb.connect(host, username, password, db_name, charset='utf8')
+            except ImportError as e:
+                #TODO log
+                import pymysql
+                connection = pymysql.connect(host, username, password, db_name, charset='utf8')
+
             return connection
 
     @staticmethod
