@@ -58,7 +58,7 @@ class Model(object):
         data = ''
 
         for key, value in self.__dict__.items():
-            if key == 'connection' or key == 'cursor' or key == 'table_name':
+            if key in self.ignores:
                 continue
             tmp = key.upper() + ' ' + str(value) + ', '
             data += tmp
@@ -71,10 +71,12 @@ class Model(object):
 
         sql += table_name + ' ('
         sql += data + ' )' + ""
+        print(sql)
         try:
             self.cursor.execute(sql)
         except Exception as e:
-            error_code = e[0]#1050 -> already exists
+            #error_code = e[0]#1050 -> already exists
+            print(e)
 
     def update_table(self):
         """
