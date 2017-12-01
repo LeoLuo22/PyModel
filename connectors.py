@@ -27,7 +27,8 @@ class DB():
             except ImportError as e:
                 #TODO log
                 import pymysql
-                connection = pymysql.connect(host, username, password, db_name, charset='utf8')
+                connection = pymysql.connect(host, username, password, db_name, charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
 
             return connection
 
