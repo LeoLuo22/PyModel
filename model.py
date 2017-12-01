@@ -8,22 +8,25 @@ from .utils import insert_sql
 from .field import Field
 from .utils import wrapper_str
 from .sql import SQL
+from .sql import MySQL
+from .settings import db
 
 class Model(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         #self.connection = get_connection()
         #self.cursor = self.connection.cursor()
-
+        self.kwargs = kwargs
         class_name = str(self.__class__)
         name = class_name.split('.')[1]
         self.table_name = name.split("'")[0].upper()
-        self.ignores = ['DB', 'table_name', 'connection', 'cursor', 'ignores']
+        self.ignores = ['DB', 'table_name', 'connection', 'cursor', 'ignores', 'kwargs']
         self.connection = DB.get_connection()
         self.cursor = self.connection.cursor()
 
     def save(self):
         result = self.__remove_field()
         sql = insert_sql(result, self.table_name)
+        print(sql)
         try:
             self.cursor.execute(sql)
         except Exception as e:
@@ -85,12 +88,13 @@ class Model(object):
             CHANGE BODY BODY TEXT CHARSET utf8 COLLATE utf8_general_ci NULL,
             change ID ID varchar(20)
         """
-        sql = "ALTER TABLE " + self.table_name + " ALTER "
-        updates = {}#Save the info that will be update
-        for key, value in self.__dict__.items():
-            if isinstance(value, Field):
-                updates[key] = value
-        return updates
+        sql = None
+        if db.get('type').upper() == 'MYSQL':
+            sql = MySQL.update_table_sql(self.table_name, self.__get_field())
+        #TODO: Other database
+        print(sql)
+        self.cursor.execute(sql)
+        self.connection.commit()
 
     def update_data(self):
         """
@@ -105,6 +109,37 @@ class Model(object):
         for key, value in self.__dict__.items():
             if key not in self.ignores:
                 setattr(self, key, None)
+
+    def __get_field(self):
+        """
+            This method is to get model's field
+            Except from unnessary property
+            @return
+             dict
+             {'date': <pymodel.field.CharField object at 0x000001D8CB8E6EF0>, 'sex': <pymodel.field.CharField object at 0x000001D8CB8E6EB8>, 'name': <pymodel.field.CharField object at 0x000001D8CB8E6E48>, 'phone': <pymodel.field.CharField object at 0x000001D8CB8E6E80>}
+        """
+        result = {}
+        for key, value in self.__dict__.items():
+            if key not in self.ignores:
+                result[key] = value
+
+        return result
+
+    def get_all(self, **kwargs):
+        """
+            Get all results
+            @return
+            [model, model]
+        """
+        sql = None
+        if not kwargs:
+            sql = SQL.select_all_sql(self.table_name)
+        else:
+            sql = SQL.select_by_condition_sql(self.table_name, kwargs)
+        print(sql)
+        self.cursor.execute(sql)
+        results = self.cursor.fetchall()
+        return results
 
     def close(self):
         self.connection.close()

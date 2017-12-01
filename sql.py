@@ -1,7 +1,7 @@
 """
     This file supplies different of SQL
 """
-#from .utils import wrapper_str
+from .utils import wrapper_str
 
 class SQL():
     def __init__(self):
@@ -48,8 +48,53 @@ class SQL():
 
         return sql
 
+    @staticmethod
+    def select_all_sql(table_name):
+        """
+            Get all models
+        """
+        sql = "SELECT * FROM " + table_name
+        return sql
+
+    @staticmethod
+    def select_by_condition_sql(table_name, kwargs):
+        sql = "SELECT * FROM " + table_name + " " + "WHERE "
+        for key, value in kwargs.items():
+            tmp = key.upper() + " = " + wrapper_str(value) + " AND "
+            sql += tmp
+
+        return sql[:-5]
+
+class MySQL():
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def update_table_sql(table_name, kwargs):
+        """
+            Generate a sql to update an exist table
+            @param kwargs
+             dict, {'BODY': 'Text', 'ID': 'VARCHAR(20)'}
+
+            ALTER TABLE app_comment
+            CHANGE BODY BODY TEXT CHARSET utf8 COLLATE utf8_general_ci NULL,
+            change ID ID varchar(20)
+            @return
+             ALTER TABLE test CHANGE ID ID VARCHAR(20), CHANGE BODY BODY TEXT
+        """
+        sql = "ALTER TABLE " + table_name + " "
+
+        for key,value in kwargs.items():
+            if not isinstance(value, str):
+                value = str(value)
+            tmp = "CHANGE " + key.upper() + " " + key.upper() + " " + value.upper() + ", "
+            sql += tmp
+
+        return sql[:-2]
+
 def main():
-    print((1062, "Duplicate entry '1939223019' for key 'PRIMARY'")[0])
+    #print((1062, "Duplicate entry '1939223019' for key 'PRIMARY'")[0])
+    print(MySQL.update_table_sql('test', {'BODY': 'Text', 'id': 'VARCHAR(20)'}))
 
 if __name__ == '__main__':
     main()
