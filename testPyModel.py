@@ -55,7 +55,7 @@ def test_get_data():
         Get data by the given condition
     """
     model = TestModel()
-    results = model.get_all(name='Leo')
+    results = model.get_all(name='Leo', sex='Male', phone='18629508095')
     print(results)
 def test_update_data():
     pass

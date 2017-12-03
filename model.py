@@ -26,13 +26,13 @@ class Model(object):
     def save(self):
         result = self.__remove_field()
         sql = insert_sql(result, self.table_name)
-        print(sql)
+        #print(sql)
         try:
             self.cursor.execute(sql)
         except Exception as e:
-            print(e)
-            if '1052' in str(e):
-                print(True)
+            if '1062' in str(e):#"Duplicate entry '1966105553' for key 'PRIMARY'"
+                #TODO add log
+                print("Already exist, Skipped")
             self.connection.rollback()
             return
         self.connection.commit()
@@ -93,16 +93,36 @@ class Model(object):
             sql = MySQL.update_table_sql(self.table_name, self.__get_field())
         #TODO: Other database
         print(sql)
-        self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except Exception as e:
+            e = str(e)
+            if '1054' in e:
+                print(e)
+                #(1054, "Unknown column 'APP_NAME' in 'app_comment'")
+                field = e.split('column')[1].split('in')[0].replace("'",'').strip().lower()
+                args = {field: str(getattr(self, field))}
+                sql = MySQL.add_column_sql(self.table_name, args)
+                print(sql)
+                self.cursor.execute(sql)
+                self.connection.commit()
+                return
+
         self.connection.commit()
 
-    def update_data(self):
+    def update_data(self, data, condition):
         """
             Update model's data
+            @param data, dict, data to be update
+            @param contion, dict
         """
         table = self.table_name
 
-        sql = SQL.update_data_sql(table, data, condition)
+        sql = MySQL.update_data_sql(table, data, condition)
+        print(sql)
+        self.cursor.execute(sql)
+        self.connection.commit()
+
 
     def __reset(self):
         #Set all attributes to None
@@ -140,6 +160,12 @@ class Model(object):
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         return results
+
+    def get(self, **kwargs):
+        """
+            Get a single result
+        """
+        pass
 
     def close(self):
         self.connection.close()

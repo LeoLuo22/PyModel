@@ -92,6 +92,50 @@ class MySQL():
 
         return sql[:-2]
 
+    @staticmethod
+    def add_column_sql(table_name, kwargs):
+        """
+            ALTER TABLE `boc`.`testmodel`
+            ADD COLUMN `shit` VARCHAR(45) NULL AFTER `fuck`,
+            ADD COLUMN `sda` VARCHAR(45) NULL AFTER `shit`;
+
+            Add column to an exist table
+        """
+        sql = "ALTER TABLE " + table_name + " "
+        for key, value in kwargs.items():
+            tmp = "ADD COLUMN " + key + " " + value.upper() + ", "
+            sql += tmp
+
+        return sql[:-2]
+
+    @staticmethod
+    def update_data_sql(table_name, kwargs, condition):
+        #UPDATE `boc`.`app_comment` SET `VERSION`='3.1.2', `KEYWORDS`='hahah' WHERE `ID`='1000030498';
+        if len(kwargs) == 0 or kwargs is None:
+            #TODO log
+            return
+        sql = "UPDATE " + table_name + " SET "
+        for key, value in kwargs.items():
+            if isinstance(value, str):
+                value = wrapper_str(value)
+            else:
+                value = str(value)
+            tmp = key + " = " + value + ", "
+            sql += tmp
+
+        sql = [:-2]
+        cond = " WHERE "
+        for key, value in condition.items():
+            if isinstance(value, str):
+                value = wrapper_str(value)
+            else:
+                value = str(value)
+            tmp = key + " = " + value + " AND "
+            cond += tmp
+
+        return sql + cond[:-5]
+
+
 def main():
     #print((1062, "Duplicate entry '1939223019' for key 'PRIMARY'")[0])
     print(MySQL.update_table_sql('test', {'BODY': 'Text', 'id': 'VARCHAR(20)'}))
