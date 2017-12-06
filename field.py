@@ -9,33 +9,40 @@ class Field():
         self.required = required#Whether could be null
         self.default = default#default value
 
+    def __str__(self):
+        base = ""
+        if self.required:
+            base += 'NOT NULL '
+        else:
+            base += 'NULL '
+        if self.pk:
+            base += 'PRIMARY KEY '
+        if self.default:
+            base += 'DEFAULT ' + wrapper_str(str(self.default))
+        elif not self.pk and not self.default:
+            base += 'DEFAULT NULL '
+
+        return base
+
 class CharField(Field):
     def __init__(self, max_length=10, pk=False, required=False, default=None):
         super(CharField, self).__init__(pk, required, default)
         self.max_length = max_length
 
     def __str__(self):
-        base = 'VARCHAR' + '(' + str(self.max_length) + ')'
-        if self.required:
-            base += ' NOT NULL'
-        if self.pk:
-            base += ' PRIMARY KEY'
-        if self.default:
-            base += ' DEFAULT ' + wrapper_str(self.default)
-
-        return base
+        base = 'VARCHAR' + '(' + str(self.max_length) + ') '
+        return base + super(CharField, self).__str__()
 
 class IntegerField(Field):
-    def __init__(self, pk=False, required=False, default=None):
+    def __init__(self, pk=False, required=False, default=None, ai=False):
         super(IntegerField, self).__init__(pk, required, default)
+        self.ai = ai
 
     def __str__(self):
-        base = 'INT'
-        if self.required:
-            base += ' NOT NULL'
-        if self.default:
-            base += ' DEFAULT ' + str(self.default)
-
+        base = "INT "
+        base += super(IntegerField, self).__str__()
+        if self.ai:
+            base += "AUTO_INCREMENT "
         return base
 
 class FloatField(Field):
@@ -43,24 +50,21 @@ class FloatField(Field):
         super(FloatField, self).__init__(pk, required, default)
 
     def __str__(self):
-        base = 'FLOAT'
-        if self.required:
-            base += ' NOT NULL '
-        if self.default:
-            base += ' DEFAULT ' + str(self.default)
-
-        return base
+        return "FLOAT " + super(FloatField, self).__str__()
 
 class BooleanField(Field):
     def __init__(self, pk=False, required=False, default=None):
         super(BooleanField, self).__init__(pk, required, default)
+
+    def __str__(self):
+        return "BOOL" + super(FloatField, self).__str__()
 
 class TextField(Field):
     def __init__(self, pk=False, required=False, default=None):
         super(TextField, self).__init__(pk, required, default)
 
     def __str__(self):
-        return 'TEXT'
+        return "TEXT " + super(TextField, self).__str__()
 
 class DateField(Field):
     """
@@ -74,43 +78,18 @@ class DateField(Field):
         super(DateField, self).__init__(pk, required, default)
 
     def __str__(self):
-        base = 'DATE'
+        return "DATE " + super(DateField, self).__str__()
 
-        if self.required:
-            base += ' NOT NULL'
-        else:
-            base += ' NULL '
-        if self.pk:
-            base += ' PRIMARY KEY'
-        if self.default:
-            base += ' DEFAULT ' + wrapper_str(str(self.default))
-        else:
-            base += ' DEFAULT NULL '
-
-        return base
-
-def DatetimeField(Field):
+class DatetimeField(Field):
     def __init__(self, pk=False, required=False, default=None):
-        super(DateField, self).__init__(pk, required, default)
+        super(DatetimeField, self).__init__(pk, required, default)
 
     def __str__(self):
         """
             YYYY-MM-DD HH：MM：SS
         """
-        base = 'DATETIME'
+        return "DATETIME " + super(DatetimeField, self).__str__()
 
-        if self.required:
-            base += ' NOT NULL'
-        else:
-            base += ' NULL '
-        if self.pk:
-            base += ' PRIMARY KEY'
-        if self.default:
-            base += ' DEFAULT ' + wrapper_str(str(self.default))
-        else:
-            base += ' DEFAULT NULL '
-
-        return base
 def test_charfield():
     name = DateField()
     print(str(name))
