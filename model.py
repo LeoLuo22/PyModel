@@ -29,6 +29,7 @@ class Model(object):
         #print(sql)
         try:
             self.cursor.execute(sql)
+            print('Successfully added document')
         except Exception as e:
             if '1062' in str(e):#"Duplicate entry '1966105553' for key 'PRIMARY'"
                 #TODO add log
@@ -97,6 +98,8 @@ class Model(object):
             self.cursor.execute(sql)
         except Exception as e:
             e = str(e)
+            print(e)
+            #each time can only add a column, need to be update
             if '1054' in e:
                 print(e)
                 #(1054, "Unknown column 'APP_NAME' in 'app_comment'")
@@ -116,11 +119,16 @@ class Model(object):
             @param data, dict, data to be update
             @param contion, dict
         """
+        if not isinstance(data, dict) or not isinstance(condition, dict):
+            raise TypeError("Params should be dict. ")
+        if len(data) == 0 or len(condition) == 0:
+            raise ValueError("data or condition is None")
         table = self.table_name
 
         sql = MySQL.update_data_sql(table, data, condition)
         print(sql)
         self.cursor.execute(sql)
+        print('Successfully updated ' + str(condition))
         self.connection.commit()
 
 
@@ -165,7 +173,15 @@ class Model(object):
         """
             Get a single result
         """
-        pass
+        sql = None
+        if not kwargs:
+            sql = SQL.select_all_sql(self.table_name)
+        else:
+            sql = SQL.select_by_condition_sql(self.table_name, kwargs)
+        sql = sql + " limit 1"
+        self.cursor.execute(sql)
+        return self.cursor.fetchone()
+
 
     def close(self):
         self.connection.close()
