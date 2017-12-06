@@ -60,7 +60,10 @@ class SQL():
     def select_by_condition_sql(table_name, kwargs):
         sql = "SELECT * FROM " + table_name + " " + "WHERE "
         for key, value in kwargs.items():
-            tmp = key.upper() + " = " + wrapper_str(value) + " AND "
+            if value == 'null':
+                tmp = key.upper() + " is " + value + " AND "
+            else:
+                tmp = key.upper() + " = " + wrapper_str(value) + " AND "
             sql += tmp
 
         return sql[:-5]
@@ -123,7 +126,7 @@ class MySQL():
             tmp = key + " = " + value + ", "
             sql += tmp
 
-        sql = [:-2]
+        sql = sql[:-2]
         cond = " WHERE "
         for key, value in condition.items():
             if isinstance(value, str):
