@@ -19,7 +19,7 @@ class Field():
             base += 'PRIMARY KEY '
         if self.default:
             base += 'DEFAULT ' + wrapper_str(str(self.default))
-        elif not self.pk and not self.default:
+        elif not self.pk and not self.default and not self.required:
             base += 'DEFAULT NULL '
 
         return base
