@@ -62,9 +62,57 @@ class TextField(Field):
     def __str__(self):
         return 'TEXT'
 
+class DateField(Field):
+    """
+        This field create Date, YY-MM-DD
 
+        CREATE TABLE `boc`.`new_table` (
+        `idnew_table` DATE NOT NULL,
+        PRIMARY KEY (`idnew_table`));
+    """
+    def __init__(self, pk=False, required=False, default=None):
+        super(DateField, self).__init__(pk, required, default)
+
+    def __str__(self):
+        base = 'DATE'
+
+        if self.required:
+            base += ' NOT NULL'
+        else:
+            base += ' NULL '
+        if self.pk:
+            base += ' PRIMARY KEY'
+        if self.default:
+            base += ' DEFAULT ' + wrapper_str(str(self.default))
+        else:
+            base += ' DEFAULT NULL '
+
+        return base
+
+def DatetimeField(Field):
+    def __init__(self, pk=False, required=False, default=None):
+        super(DateField, self).__init__(pk, required, default)
+
+    def __str__(self):
+        """
+            YYYY-MM-DD HH：MM：SS
+        """
+        base = 'DATETIME'
+
+        if self.required:
+            base += ' NOT NULL'
+        else:
+            base += ' NULL '
+        if self.pk:
+            base += ' PRIMARY KEY'
+        if self.default:
+            base += ' DEFAULT ' + wrapper_str(str(self.default))
+        else:
+            base += ' DEFAULT NULL '
+
+        return base
 def test_charfield():
-    name = CharField(max_length=20, default='Leo', pk=True, required=True)
+    name = DateField()
     print(str(name))
 
 def test_integerfield():
