@@ -31,6 +31,7 @@ class Model(object):
             self.cursor.execute(sql)
             print('Successfully added document')
         except Exception as e:
+            print(e)
             if '1062' in str(e):#"Duplicate entry '1966105553' for key 'PRIMARY'"
                 #TODO add log
                 print("Already exist, Skipped")
